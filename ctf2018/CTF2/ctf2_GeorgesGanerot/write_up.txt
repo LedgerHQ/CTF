@@ -1,0 +1,12 @@
+With a little reverse engineering, we noticed that the implementation was doing 15 AES computations in random order. (40 steps required to do a full AES computation), masking is used in different part of the algorithm.
+
+The state 7 contains the state of the good AES.
+
+We focused on state7, after the initial SBOX step (that also include the AddRoundKey).
+
+The gdb_commands script forces the masks to be 0, and ensure that we only work on the 7th state in the schedule call. It exists when the first sbox operation is done.
+
+The python script (find_key.py) generates 3 values (00,01,02) for a specific byte, and retrieve the key that would yield such values in the output state.
+
+The aes.py script compute the good plaintext to pass to the program to have a valid login.
+
