@@ -41,8 +41,9 @@ You’re given a program which runs on a remote host. This program implements an
 
     Send your answer in hexadecimal format (lower case) at this address: ctf2018+<your_answer>@ledger.fr (without the ‘<‘ and ‘>’). The subject will be CTF#2, your message should explain quickly how you did it.
 
-Download the file here.
-Challenge 3: $camcoin is the new Bitcoin
+Download the file in CTF2/ctf2
+
+## Challenge 3: $camcoin is the new Bitcoin
 
 In order to solve scaling issue of Bitcoin, $camCoin Company developed its own coin: $camCoin. The overall system looks like Bitcoin except for the signature.
 
@@ -60,7 +61,7 @@ The signature (x,y) is finally converted in base64 format. The Hash is computed 
     Alice $camCoin Address: 1Ppecdv2jWjZjdSJjnQs5JaGhethCsdTCL
     Bob $camCoin Address: 1QFmDXuBr9QY5NoRdbYfZBFFP5cTS9rL4E
 
-The transaction to sign is: “Amount:42 From:1Ppecdv2jWjZjdSJjnQs5JaGhethCsdTCL To:1QFmDXuBr9QY5NoRdbYfZBFFP5cTS9rL4E” Hash of the message is (hexadecimal): 18e6d4da1887b0083350f188a29a3895c5755f0e86b84e95ba26eaee0ba9c38a The timestamp is: 1521543600 (Tuesday 20 March 2018 12:00:00 CET) Signature is: HKaLZ/jSgiehh7cyhP5A7AXfEEwuQudjJiJqQLn2qa6Rc9oH1uZ6LztNIFEnG1Lp4EJnNF/RhXgJcky28lD/j6U= Find in the following file the list of Bob $camCoin transactions. Can you sign a transaction with 1000000 $camcoin to Eve’s address: 14pHuKrkRhLKsW6zxHKQ64DFGyKQffj7GW with the following timestamp: 1521543600 (Tuesday 20 March 2018 12:00:00 CET) ?
+The transaction to sign is: “Amount:42 From:1Ppecdv2jWjZjdSJjnQs5JaGhethCsdTCL To:1QFmDXuBr9QY5NoRdbYfZBFFP5cTS9rL4E” Hash of the message is (hexadecimal): 18e6d4da1887b0083350f188a29a3895c5755f0e86b84e95ba26eaee0ba9c38a The timestamp is: 1521543600 (Tuesday 20 March 2018 12:00:00 CET) Signature is: HKaLZ/jSgiehh7cyhP5A7AXfEEwuQudjJiJqQLn2qa6Rc9oH1uZ6LztNIFEnG1Lp4EJnNF/RhXgJcky28lD/j6U= Find in the following file (CTF3/transactions.txt) the list of Bob $camCoin transactions. Can you sign a transaction with 1000000 $camcoin to Eve’s address: 14pHuKrkRhLKsW6zxHKQ64DFGyKQffj7GW with the following timestamp: 1521543600 (Tuesday 20 March 2018 12:00:00 CET) ?
 
     Send your answer in base64 format at this address: ctf2018+<your_answer>@ledger.fr (without the ‘<‘ and ‘>’). The subject will be CTF#3, your message should explain quickly how you did it.
 
