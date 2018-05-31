@@ -54,9 +54,9 @@ In order to solve scaling issue of Bitcoin, $camCoin Company developed its own c
 Only two things change: 1. The transaction to sign becomes human readable: It’s formatted as a string containing the amount to send, the address from which it’s sent and the address to which it’s sent. For instance when Alice wants to send 42 $camCoins to Bob, she signs the following message: “Amount:42 From:1Ppecdv2jWjZjdSJjnQs5JaGhethCsdTCL To:1QFmDXuBr9QY5NoRdbYfZBFFP5cTS9rL4E” Where 1Ppecdv2jWjZjdSJjnQs5JaGhethCsdTCL is the address of Alice and 1QFmDXuBr9QY5NoRdbYfZBFFP5cTS9rL4E is the address of Bob. 2. In order to insert a timestamp of the transaction, the ECDSA signature, is performed using the epoch time of the transaction:
 
    - k = current time of the transaction (epoch format)
-   - - <img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/8e8302ad7a7916822b31509aded42dff041b5721" /> 
-   - - <img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/24c35e22bc28f8e065b39a036d64334d21c7f5bc" /> 
-   - - <img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/6647e2aeaaf615d1bb2109091fcb5096f5f89e8b" /> 
+   - <img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/8e8302ad7a7916822b31509aded42dff041b5721" /> 
+   - <img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/24c35e22bc28f8e065b39a036d64334d21c7f5bc" /> 
+   - <img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/6647e2aeaaf615d1bb2109091fcb5096f5f89e8b" /> 
 
 The signature (x,y) is finally converted in base64 format. The Hash is computed directly on the message (no “Bitcoin Signed Message…” appended) using Sha256. Edit: the Hash is computed as Sha256(Sha256(data)) as for Bitcoin but without the “Bitcoin Signed message” string Here is an example with Alice wallet.
 
