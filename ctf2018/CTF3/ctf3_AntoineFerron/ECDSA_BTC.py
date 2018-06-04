@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # coding=utf8
 
-# ECDSA BTC of FastSignVerify
-# Copyright (C) 2014  Antoine FERRON
+# ECDSA BTC of CTF3
+# Copyright (C) 2018  Antoine FERRON
 
 # Some portions based on :
 # "python-ecdsa" Copyright (C) 2010 Brian Warner (MIT Licence)
@@ -170,43 +170,12 @@ def bitcoin_sign_message(privkey, hsmessage, k):
 def bitcoin_encode_sig(signature):
   return chr( 27 + signature.pby ) + signature.encode()
 
-def output_full_sig(text,address,signature):
-	fullsig= \
-	"-----BEGIN BITCOIN SIGNED MESSAGE-----\n" \
-	+text+ "\n" + \
-	"-----BEGIN SIGNATURE-----\n" \
-	+address+ "\n" +  \
-	signature+ "\n" + \
-	"-----END BITCOIN SIGNED MESSAGE-----"
-	return fullsig
-
 def pvtoadr(pv, compr):
 	pubkey = Public_key( generator_256, pv*generator_256 )
 	#privkey = Private_key( pubkey, pv )
 	return pub_hex_base58( pubkey.point.x(), pubkey.point.y(), compr )
 
-def recoverpv(m,k, sigi):
-	# z = h(m)
-	# r = sig1
-	# s = sig2
-	# d =(s.k-z)/r
-	
-	G = generator_256
-	order = G.order()
-	# extract r,s from signature
-	sig = base64.b64decode(sigi)
-	#if len(sig) != 65: raise Exception("Wrong encoding")
-	r = int(binascii.hexlify(sig[ 1:33]),16)
-	s = int(binascii.hexlify(sig[33:  ]),16)
-	assert r > 0 and r <= order-1
-	assert s > 0 and s <= order-1
-	be = bytearray(m,'utf8')
-	z = int(dsha256( be ),16)
-	inv_r = inverse_mod(r,order)
-	d = inv_r * ( ( s*k - z) %order) % order
-	return pvtoadr(d)
-
-def recoverk(m1,sigi1, m2, sigi2):
+def recoverk(m1, sigi1, m2, sigi2):
 	G = generator_256
 	order = G.order()
 	sig1 = base64.b64decode(sigi1)
@@ -217,6 +186,9 @@ def recoverk(m1,sigi1, m2, sigi2):
 	if len(sig2) != 65: raise Exception("Wrong encoding")
 	assert r == int(binascii.hexlify(sig2[ 1:33]),16)
 	s2 = int(binascii.hexlify(sig2[33: ]),16)
+	assert r > 0 and r <= order-1
+	assert s1 > 0 and s1 <= order-1
+	assert s2 > 0 and s1 <= order-1
 	nV = ord(sig1[0])
 	assert nV == ord(sig1[0])
 	if nV < 27 or nV >= 35:
@@ -233,66 +205,66 @@ def recoverk(m1,sigi1, m2, sigi2):
 	# k = Dz / Ds
 	inv_s = inverse_mod((s1-s2),order)
 	k = ((z1-z2)*inv_s)%order
-	print "k = ",k
-	# d = (s1.k-z)/r
+	print "k used = ",k
+	# d = (s.k-z)/r
 	inv_r = inverse_mod(r,order)
-	d = (inv_r *  ( (s1*k) - z1) ) % order
+	d = (inv_r * ( (s1*k) - z1) ) % order
 	return d
 
 def bitcoin_verify_message(address, signature, message):
-		G = generator_256
-		order = G.order()
-		# extract r,s from signature
-		sig = base64.b64decode(signature)
-		if len(sig) != 65: raise Exception("Wrong encoding")
-		r = int(binascii.hexlify(sig[ 1:33]),16)
-		s = int(binascii.hexlify(sig[33:  ]),16)
-		assert r > 0 and r <= order-1
-		assert s > 0 and s <= order-1
-		nV = ord(sig[0])
-		if nV < 27 or nV >= 35:
-			raise Exception("Bad encoding")
-		if nV >= 31:
-			compressed = True
-			nV -= 4
-		else:
-			compressed = False
-		recid = nV - 27
-		p=curve_256.p()
-		xcube= pow(r,3,p)
-		exposa=(p+1)>>2
-		beta = pow(xcube+7, exposa, p)
-		if (beta - recid) % 2 == 0:
-			y = beta
-		else:
-			y = p - beta
-		R = Point(r, y, order)
-		# check R is on curve
-		assert curve_256.contains_point(r,y)
-		# checks that nR is at infinity
-		assert order*R==INFINITY
-		message=message.replace("\r\n","\n")
-		lenmsg=len(message)
-		#if lenmsg<253: lm = bytearray(struct.pack('B',lenmsg))
-		#else: lm = bytearray(struct.pack('B',253)+struct.pack('<H',lenmsg)) # up to 65k
-		#be = bytearray("\x18Bitcoin Signed Message:\n")+ lm + bytearray(message,'utf8')
-		be = bytearray(message,'utf8')
-		inv_r = inverse_mod(r,order)    
-		e = int(dsha256( be ),16)
-		# Q = (sR - eG) / r
-		Q = inv_r * (  R.dual_mult( -e % order, s ) )
-		# checks Q in range, Q on curve, Q order
-		pubkey = Public_key( G, Q)
-		addr = pub_hex_base58( pubkey.point.x(), pubkey.point.y(), compressed )
-		# checks the address provided is the signing address
-		if address != addr:
-			raise Exception("Bad signature")
-		# No need to check signature, since we don't have the public key
-		# Public key is extracted from signature, verification will always return OK
-		# We compute the pub key from the expected result of sig check.
-		# Since Q =(sR-eG)/r  then  R == e/s*G + r/s*Q  is always true
-		#pubkey.verifies( e, Signature(0,r,s) )
-		
+	G = generator_256
+	order = G.order()
+	# extract r,s from signature
+	sig = base64.b64decode(signature)
+	if len(sig) != 65: raise Exception("Wrong encoding")
+	r = int(binascii.hexlify(sig[ 1:33]),16)
+	s = int(binascii.hexlify(sig[33:  ]),16)
+	assert r > 0 and r <= order-1
+	assert s > 0 and s <= order-1
+	nV = ord(sig[0])
+	if nV < 27 or nV >= 35:
+		raise Exception("Bad encoding")
+	if nV >= 31:
+		compressed = True
+		nV -= 4
+	else:
+		compressed = False
+	recid = nV - 27
+	p=curve_256.p()
+	xcube= pow(r,3,p)
+	exposa=(p+1)>>2
+	beta = pow(xcube+7, exposa, p)
+	if (beta - recid) % 2 == 0:
+		y = beta
+	else:
+		y = p - beta
+	R = Point(r, y, order)
+	# check R is on curve
+	assert curve_256.contains_point(r,y)
+	# checks that nR is at infinity
+	assert order*R == INFINITY
+	message=message.replace("\r\n","\n")
+	lenmsg=len(message)
+	#if lenmsg<253: lm = bytearray(struct.pack('B',lenmsg))
+	#else: lm = bytearray(struct.pack('B',253)+struct.pack('<H',lenmsg)) # up to 65k
+	#be = bytearray("\x18Bitcoin Signed Message:\n")+ lm + bytearray(message,'utf8')
+	be = bytearray(message,'utf8')
+	inv_r = inverse_mod(r,order)    
+	e = int(dsha256( be ),16)
+	# Q = (sR - eG) / r
+	Q = inv_r * (  R.dual_mult( -e % order, s ) )
+	# checks Q in range, Q on curve, Q order
+	pubkey = Public_key( G, Q)
+	addr = pub_hex_base58( pubkey.point.x(), pubkey.point.y(), compressed )
+	# checks the address provided is the signing address
+	if address != addr:
+		raise Exception("Bad signature")
+	# No need to check signature, since we don't have the public key
+	# Public key is extracted from signature, verification will always return OK
+	# We compute the pub key from the expected result of sig check.
+	# Since Q =(sR-eG)/r  then  R == e/s*G + r/s*Q  is always true
+	#pubkey.verifies( e, Signature(0,r,s) )
+	
 
 def decode_sig_msg(msg):
 	msg=msg.replace("\r\n","\n")
@@ -307,83 +279,4 @@ def decode_sig_msg(msg):
 	if address=="": address=msglines[nline-4][9:]
 	signature=msglines[nline-2]
 	return address, signature, message[1:]
-	
-if __name__ == '__main__' :
-	import random
-	import string
-	load_gtable('G_Table')
-	print "Tests started"
-	
-	print "\nDeterministic RFC6979 Checking"
-	hmsg= hashlib.sha256(bytearray("Satoshi Nakamoto",'utf8')).hexdigest()
-	k = gen_det_k( hmsg, 1 )
-	assert k == 0x8F8A276C19F4149656B280621E358CCE24F5F52542772691EE69063B74F15D15L
-	
-	message_signed = \
-	"""-----BEGIN BITCOIN SIGNED MESSAGE-----
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse faucibus, arcu imperdiet lacinia faucibus, magna tellus suscipit tortor, et auctor orci mi elementum leo. Aliquam vitae arcu viverra, tempus sem eget, mattis libero. Vestibulum ut libero dignissim, rhoncus augue eu, vulputate nisl. Quisque vitae pulvinar enim. Nullam lobortis tellus in eros consectetur, et iaculis eros interdum. Nam vehicula, sapien id consectetur rutrum, felis leo convallis eros, eget lacinia tellus nunc in dui. Etiam a quam eu lectus aliquam scelerisque. Vestibulum ac semper velit. Ut eget nulla eros. Sed venenatis purus eros, eu convallis lectus congue at. Suspendisse ipsum est, elementum et ultricies ac, sollicitudin sit amet urna. Proin viverra fusce.
------BEGIN SIGNATURE-----
-1B4ZZijK1w8xomMHyChXCgRwtN6LRvBgEi
-G+5z8qAYM6LekZeE8ruDs1R1egjedfQxz0q8ja+v9pvWQWGozoiToB6aemOdPAOh4OFVysBMNmhZhCyIJierV+M=
------END BITCOIN SIGNED MESSAGE-----"""
-	
-	def change_car(text, pos, car):
-		return text[:pos] + car + text[pos+1:]
-	
-	def test_false_signature(address, signature, message):
-		try:
-			bitcoin_verify_message(address, signature, message)
-			no_problem=False
-		except Exception as inst:
-			no_problem=True
-		assert no_problem
-	
-	address1, signature1, message1 = decode_sig_msg(message_signed)
-	
-	print "\nSignature checking for validity"
-	bitcoin_verify_message(address1, signature1, message1)
-	
-	print "\nCheck with falsified message"
-	message=change_car(message1, 231, "l")
-	test_false_signature(address1, signature1, message)
-	
-	print "\nCheck with falsified signature"
-	signature=change_car(signature1,42,"u")
-	test_false_signature(address1, signature, message1)
-	
-	print "\nCheck with falsified address"
-	address = "1CVaUy7x8EA6wdnXCGkRChJASV4MAmje4g"
-	test_false_signature(address, signature1, message1)
-	
-	print "\nBatch sign & check of random keys and messages"
-	maxend=500
-	g=generator_256
-	random.seed(int(os.urandom(32).encode('hex'), 16))
-	for i in xrange(maxend):
-		print i+1, "/", maxend
-		secret = random.randint(1,g.order())
-		message = ''.join([random.choice(string.digits+string.letters+'    \n') for x in range(80)])
-		try:
-			pubkey = Public_key( g, mulG(secret) )
-			privkey = Private_key( pubkey, secret )
-			address_pub = pub_hex_base58( pubkey.point.x(), pubkey.point.y() )
-			hm = hash_msg(message)
-			if i%2==1:
-				k = gen_det_k( hm, privkey )
-			else:
-				k = randoml(g)
-			signature = bitcoin_sign_message( privkey, hm, k )
-			signature_str = bitcoin_encode_sig( signature )
-			signature64 = base64.b64encode( signature_str )
-			fullsig = output_full_sig(message,address_pub,signature64)
-			addr, sigd, msgd = decode_sig_msg(fullsig)
-			bitcoin_verify_message(addr, sigd, msgd)
-		except Exception as inst:
-			print "ERROR :",str(inst)
-			print message
-			print secret
-			print signature64
-			print address_pub
-			raise
-		
-	print "ALL TESTS PASSED !"
+

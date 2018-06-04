@@ -1,7 +1,7 @@
 # CTF 2018
 
 All the details can be found here: https://www.ledger.fr/ctf2018
-A blogpost giving the ranking and the solutions is available here: https://www.ledger.fr/2018/05/30/end-of-ctf-2018/
+A blogpost giving the ranking and the solutions is available here: https://www.ledger.fr/2018/06/01/ctf-complete-hw-bounty-still-ongoing-2-337-btc/
 
 ## Rules of the first stage: CTF
 
